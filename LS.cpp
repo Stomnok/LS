@@ -1,5 +1,6 @@
-#include<iostream>
-#include<thread>
+#include <iostream>
+#include <thread>
+#include <cmath>
 
 using namespace std;
 typedef unsigned int UI;
@@ -11,44 +12,42 @@ struct LS{
 };
 
 
-void Delete(LS LS, UI *Mask)
+void Delete(const LS LS, const UI *Mask = nullptr)
 {
     for(int p=0; p<LS.order; p++) {
         delete[]LS.pointer[p];
     }
     delete[]LS.pointer;
     delete[]Mask;
-    return;
 }
 
 
-void Print(LS LS) //заменить вывод на запись в файл
+void Print(const LS LS) //заменить вывод на запись в файл
 {
     for(int j=0;j<LS.order;j++){
         for(int i=0;i<LS.order;i++)
             cout<<LS.pointer[j][i]<<" ";
         cout<<endl;
     }
-    return;
 }
 
 
-void test(LS LS, int g)
+void test(LS LS, int g, int t)
 {
-    if(g==2){
-        for(int i=0;i<LS.order;i++) {
-            for(int j=0;j<LS.order/2;j++) {
-                LS.pointer[i][j]=2;
-            }
+    for(int i = 0; i < LS.order; i++) {
+        for (int j = 0; j < LS.order / 2; j++) {
+            LS.pointer[i][g] = g;
         }
-    } else {
-       for(int i=0;i<LS.order;i++) {
-            for(int j=LS.order/2;j<LS.order;j++) {
-                LS.pointer[i][j]=3;
-            }
-        } 
     }
-    return;
+    if(g%2!=0){
+        return;
+    }
+    int gB=g-(LS.order/int(pow(2,t+2)));
+    int gA=g+(LS.order/int(pow(2,t+2)));
+    thread A (test, LS, gA,t+1);
+    thread B (test, LS, gB,t+1);
+    A.join();
+    B.join();
 }
 
 
@@ -56,32 +55,22 @@ void Make_LS(LS LS)
 {
     for(int i=0;i<LS.order;i++) {
         for(int j=0;j<LS.order;j++) {
-            LS.pointer[i][j]=1;
+            LS.pointer[i][j]=0;
         }
     }
-    for(int i=0;i<LS.order;i++) {
-        for(int j=0;j<LS.order;j++) {
-            LS.pointer[i][5]=5;
-        }
-    }
-    //thread A (test, LS, 2);
-    //thread B (test, LS, 3);
-    //A.join();
-    //B.join();
-    
-    return;
+    test(LS,(LS.order/2), 0);
 }
 
 
 int main()
 {
-    srand(time(NULL));
-    LS LS;
+    srand(time(nullptr));
+    LS LS{};
 
     cout<<"Input square order, power of 2:"<<endl;
     cin>>LS.order;
     LS.orderBasic = 8;
-    if(LS.order & (LS.order-1) != 0) {
+    if((LS.order & (LS.order-1)) != 0) {
         cout<<"Incorrect data, set order to 1024"<<endl;
         LS.order = 1024;
     }
@@ -94,5 +83,6 @@ int main()
 
     Make_LS(LS);
     Print(LS);
+    Delete(LS);
     return 0;
 }
