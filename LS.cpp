@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <thread>
-#include <cmath>
+#include <fstream>
 
 using namespace std;
 typedef unsigned int UI;
@@ -18,7 +18,11 @@ public:
 
     ~LatinSquare();
 
+    void Allocate();
+
     void Print() const;
+
+    void PrintFile() const;
 
     void MakeBasicLS() const;
 
@@ -38,13 +42,7 @@ LatinSquare::LatinSquare() {
 LatinSquare::LatinSquare(int _order, int _orderBasic) {
     order = _order;
     orderBasic = _orderBasic;
-    pointer = new int *[order];
-    for (int i = 0; i < order; i++) {
-        pointer[i] = new int[order];
-        for (int j = 0; j < order; j++) {
-            pointer[i][j] = 0;
-        }
-    }
+    pointer = nullptr;
 }
 
 LatinSquare::~LatinSquare() {
@@ -54,10 +52,40 @@ LatinSquare::~LatinSquare() {
     delete[]pointer;
 }
 
-void LatinSquare::Print() const {   //toDo заменить вывод на запись в файл
+void LatinSquare::Allocate() {
+    pointer = new int *[order];
+    for (int i = 0; i < order; i++) {
+        pointer[i] = new int[order];
+        for (int j = 0; j < order; j++) {
+            pointer[i][j] = 0;
+        }
+    }
+}
+
+void LatinSquare::PrintFile() const {
+    ofstream fout;
+    fout.open("LatinSquare.txt", ios::out);
+    int ord = order;
+    int width = 0;
+    while (ord > 0) {
+        ord /= 10;
+        width += 1;
+    }
+    for (int j = 0; j < order; j++) {
+        for (int i = 0; i < order; i++) {
+            fout.width(width);
+            fout << pointer[j][i] << " ";
+        }
+        fout << "\n";
+    }
+    fout.close();
+}
+
+
+void LatinSquare::Print() const {
     int width = 0;
     int ord = order;
-    while (ord>0) {
+    while (ord > 0) {
         ord /= 10;
         width += 1;
     }
@@ -128,6 +156,7 @@ void Permutation(LatinSquare *LS) { //вывернутый алгоритм та
 
 void MakeLS(LatinSquare *LS) {
     if (LS->order == LS->orderBasic) {
+        LS->Allocate();
         LS->MakeBasicLS();
         return;
     }
@@ -144,6 +173,7 @@ void MakeLS(LatinSquare *LS) {
     B.ShiftAlphabet();
     //step 4
     //step 4.1
+    LS->Allocate();
     LS->FillHalfLS(&A, &B, 'u');
     //step 3
     //step 3.a
@@ -165,6 +195,7 @@ int main() {
     int order, orderBasic;
     cout << "Input square order, power of 2:" << endl;
     cin >> order;
+    order = 1 << order;
     orderBasic = 8;
     if ((order & (order - 1)) != 0) {
         cout << "Incorrect data, set order to 1024" << endl;
@@ -173,6 +204,9 @@ int main() {
     cout.flush();
     LatinSquare LS(order, orderBasic);
     MakeLS(&LS);
-    LS.Print();
+    //LS.Print();
+    //LS.PrintFile();
+    cout << "Done!" << endl;
+    cout.flush();
     return 0;
 }
