@@ -31,7 +31,6 @@ public:
 
 };
 
-
 LatinSquare::LatinSquare() {
     order = 0;
     orderBasic = 0;
@@ -130,20 +129,21 @@ void LatinSquare::FillHalfLS(LatinSquare *A, LatinSquare *B, char UorD) const {
 }
 
 void Permutation(LatinSquare *LS) { //вывернутый алгоритм тасования Фишера — Йетса
-    //row permutation
     int randRow;
     int randColumn;
     int *tempRow;
     int tempElemFromColumn;
+    //row permutation
     for (int row = 1; row < LS->order; row++) {
         randRow = rand() % row;
         tempRow = LS->pointer[row];
         LS->pointer[row] = LS->pointer[randRow];
         LS->pointer[randRow] = tempRow;
     }
+    //column permutation
     for (int column = 1; column < LS->order; column++) {
         randColumn = rand() % column;
-        for (int row = 1; row < LS->order; row++) {
+        for (int row = 0; row < LS->order; row++) {
             tempElemFromColumn = LS->pointer[row][randColumn];
             LS->pointer[row][randColumn] = LS->pointer[row][column];
             LS->pointer[row][column] = tempElemFromColumn;
@@ -202,7 +202,7 @@ int main() {
     LatinSquare LS(order, orderBasic);
     MakeLS(&LS);
     //LS.Print();
-    //LS.PrintFile();
+    LS.PrintFile();
     cout << "Done!" << endl;
     cout.flush();
     return 0;
