@@ -4,7 +4,6 @@
 #include <fstream>
 
 using namespace std;
-typedef unsigned int UI;
 
 class LatinSquare {
 public:
@@ -63,8 +62,8 @@ void LatinSquare::Allocate() {
 }
 
 void LatinSquare::PrintFile() const {
-    ofstream fout;
-    fout.open("LatinSquare.txt", ios::out);
+    ofstream fileOut;
+    fileOut.open("LatinSquare.txt", ios::out);
     int ord = order;
     int width = 0;
     while (ord > 0) {
@@ -73,14 +72,13 @@ void LatinSquare::PrintFile() const {
     }
     for (int j = 0; j < order; j++) {
         for (int i = 0; i < order; i++) {
-            fout.width(width);
-            fout << pointer[j][i] << " ";
+            fileOut.width(width);
+            fileOut << pointer[j][i] << " ";
         }
-        fout << "\n";
+        fileOut << "\n";
     }
-    fout.close();
+    fileOut.close();
 }
-
 
 void LatinSquare::Print() const {
     int width = 0;
@@ -99,12 +97,13 @@ void LatinSquare::Print() const {
     cout.flush();
 }
 
-void LatinSquare::MakeBasicLS() const {   //toDo
+void LatinSquare::MakeBasicLS() const {
     for (int i = 0; i < order; i++) {
         for (int j = 0; j < order; j++) {
             pointer[i][j] = (i + j) % order;
         }
     }
+
 }
 
 void LatinSquare::ShiftAlphabet() const {
@@ -130,7 +129,6 @@ void LatinSquare::FillHalfLS(LatinSquare *A, LatinSquare *B, char UorD) const {
     }
 }
 
-
 void Permutation(LatinSquare *LS) { //вывернутый алгоритм тасования Фишера — Йетса
     //row permutation
     int randRow;
@@ -153,11 +151,11 @@ void Permutation(LatinSquare *LS) { //вывернутый алгоритм та
     }
 }
 
-
 void MakeLS(LatinSquare *LS) {
     if (LS->order == LS->orderBasic) {
         LS->Allocate();
         LS->MakeBasicLS();
+        Permutation(LS);
         return;
     }
     //step 1
@@ -188,7 +186,6 @@ void MakeLS(LatinSquare *LS) {
     //step 5
     Permutation(LS);
 }
-
 
 int main() {
     srand(time(nullptr));
