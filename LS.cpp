@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <thread>
 #include <cmath>
 
@@ -10,24 +11,31 @@ public:
     int **pointer;
     int order;
     int orderBasic;
+
     LatinSquare();
+
     LatinSquare(int order, int orderBasic);
+
     ~LatinSquare();
+
     void Print() const;
+
     void MakeBasicLS() const;
+
     void ShiftAlphabet() const;
-    void FillHalfLS(LatinSquare* A, LatinSquare* B, char UorD) const;
+
+    void FillHalfLS(LatinSquare *A, LatinSquare *B, char UorD) const;
 
 };
 
 
-LatinSquare::LatinSquare(){
+LatinSquare::LatinSquare() {
     order = 0;
     orderBasic = 0;
     pointer = nullptr;
 }
 
-LatinSquare::LatinSquare(int _order, int _orderBasic){
+LatinSquare::LatinSquare(int _order, int _orderBasic) {
     order = _order;
     orderBasic = _orderBasic;
     pointer = new int *[order];
@@ -39,7 +47,7 @@ LatinSquare::LatinSquare(int _order, int _orderBasic){
     }
 }
 
-LatinSquare::~LatinSquare(){
+LatinSquare::~LatinSquare() {
     for (int p = 0; p < order; p++) {
         delete[]pointer[p];
     }
@@ -47,9 +55,17 @@ LatinSquare::~LatinSquare(){
 }
 
 void LatinSquare::Print() const {   //toDo заменить вывод на запись в файл
+    int width = 0;
+    int ord = order;
+    while (ord>0) {
+        ord /= 10;
+        width += 1;
+    }
     for (int j = 0; j < order; j++) {
-        for (int i = 0; i < order; i++)
+        for (int i = 0; i < order; i++) {
+            cout.width(width);
             cout << pointer[j][i] << " ";
+        }
         cout << endl;
     }
     cout.flush();
@@ -71,7 +87,7 @@ void LatinSquare::ShiftAlphabet() const {
     }
 }
 
-void LatinSquare::FillHalfLS(LatinSquare* A,LatinSquare* B, char UorD) const {
+void LatinSquare::FillHalfLS(LatinSquare *A, LatinSquare *B, char UorD) const {
     int shift = 0;
     if (UorD == 'd') {
         shift = A->order;
@@ -87,27 +103,43 @@ void LatinSquare::FillHalfLS(LatinSquare* A,LatinSquare* B, char UorD) const {
 }
 
 
-void Permutation(LatinSquare* LS) { //toDo
-
+void Permutation(LatinSquare *LS) { //вывернутый алгоритм тасования Фишера — Йетса
+    //row permutation
+    int randRow;
+    int randColumn;
+    int *tempRow;
+    int tempElemFromColumn;
+    for (int row = 1; row < LS->order; row++) {
+        randRow = rand() % row;
+        tempRow = LS->pointer[row];
+        LS->pointer[row] = LS->pointer[randRow];
+        LS->pointer[randRow] = tempRow;
+    }
+    for (int column = 1; column < LS->order; column++) {
+        randColumn = rand() % column;
+        for (int row = 1; row < LS->order; row++) {
+            tempElemFromColumn = LS->pointer[row][randColumn];
+            LS->pointer[row][randColumn] = LS->pointer[row][column];
+            LS->pointer[row][column] = tempElemFromColumn;
+        }
+    }
 }
 
 
-void MakeLS(LatinSquare* LS) {
+void MakeLS(LatinSquare *LS) {
     if (LS->order == LS->orderBasic) {
         LS->MakeBasicLS();
         return;
     }
     //step 1
     //step 1.a
-    LatinSquare A(LS->order >> 1,LS->orderBasic);
-    thread generateA(MakeLS,&A);
+    LatinSquare A(LS->order >> 1, LS->orderBasic);
+    thread generateA(MakeLS, &A);
     //step 1.b
-    LatinSquare B(LS->order >> 1,LS->orderBasic);
-    thread generateB(MakeLS,&B);
+    LatinSquare B(LS->order >> 1, LS->orderBasic);
+    thread generateB(MakeLS, &B);
     generateA.join();
     generateB.join();
-    cout << "A pointer is" << A.pointer << endl;
-    cout << "B pointer is" << B.pointer << endl;
     //step 2
     B.ShiftAlphabet();
     //step 4
@@ -115,9 +147,9 @@ void MakeLS(LatinSquare* LS) {
     LS->FillHalfLS(&A, &B, 'u');
     //step 3
     //step 3.a
-    thread permutationA(Permutation,&A);
+    thread permutationA(Permutation, &A);
     //step 3.b
-    thread permutationB(Permutation,&B);
+    thread permutationB(Permutation, &B);
     permutationA.join();
     permutationB.join();
     //step 4
@@ -130,7 +162,7 @@ void MakeLS(LatinSquare* LS) {
 
 int main() {
     srand(time(nullptr));
-    int order,orderBasic;
+    int order, orderBasic;
     cout << "Input square order, power of 2:" << endl;
     cin >> order;
     orderBasic = 8;
@@ -139,7 +171,7 @@ int main() {
         order = 1024;
     }
     cout.flush();
-    LatinSquare LS(order,orderBasic);
+    LatinSquare LS(order, orderBasic);
     MakeLS(&LS);
     LS.Print();
     return 0;
