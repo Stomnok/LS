@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <thread>
 #include <fstream>
+#include <ctime>
 
 using namespace std;
 
@@ -194,15 +195,15 @@ int main() {
     cin >> order;
     order = 1 << order;
     orderBasic = 8;
-    if ((order & (order - 1)) != 0) {
-        cout << "Incorrect data, set order to 1024" << endl;
-        order = 1024;
-    }
     cout.flush();
     LatinSquare LS(order, orderBasic);
+    unsigned int start_time =  clock();
     MakeLS(&LS);
+    unsigned int end_time = clock();
+    unsigned int search_time = end_time - start_time;
+    cout << "Time is: " << search_time << endl;
     //LS.Print();
-    LS.PrintFile();
+    //LS.PrintFile();
     cout << "Done!" << endl;
     cout.flush();
     return 0;
