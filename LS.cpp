@@ -3,6 +3,7 @@
 #include <thread>
 #include <fstream>
 #include <ctime>
+#include <string>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ public:
 
     void Print() const;
 
-    void PrintFile() const;
+    void PrintFile(string filename) const;
 
     void MakeBasicLS() const;
 
@@ -61,9 +62,9 @@ void LatinSquare::Allocate() {
     }
 }
 
-void LatinSquare::PrintFile() const {
+void LatinSquare::PrintFile(string filename) const {
     ofstream fileOut;
-    fileOut.open("LatinSquare.txt", ios::out);
+    fileOut.open(filename, ios::out);
     int ord = order;
     int width = 0;
     while (ord > 0) {
@@ -129,7 +130,7 @@ void LatinSquare::FillHalfLS(LatinSquare *A, LatinSquare *B, char UorD) const {
     }
 }
 
-void Permutation(LatinSquare *LS) { //вывернутый алгоритм тасования Фишера — Йетса
+void Permutation(LatinSquare *LS,bool flag) { //вывернутый алгоритм тасования Фишера — Йетса
     int randRow;
     int randColumn;
     int *tempRow;
@@ -150,13 +151,53 @@ void Permutation(LatinSquare *LS) { //вывернутый алгоритм та
             LS->pointer[row][column] = tempElemFromColumn;
         }
     }
+    
+	int* newAlphabetString;
+	newAlphabetString = new int [LS->order];
+	int tempLetter;
+	if(flag){
+		for(int i=0;i<LS->order;i++){
+			newAlphabetString[i]=i+(LS->order);
+		}
+		for (int i = 1; i < LS->order; i++) {
+			int randLetter = rand() % i;
+		    tempLetter = newAlphabetString[i];
+		    newAlphabetString[i] = newAlphabetString[randLetter];
+		    newAlphabetString[randLetter] = tempLetter;
+		}
+
+	   for (int column = 0; column < LS->order; column++) {
+		    for (int row = 0; row < LS->order; row++) {
+		    	int value = LS->pointer[row][column]-LS->order;
+		    	LS->pointer[row][column]=newAlphabetString[value];
+		    }
+	   }
+   }else{
+		for(int i=0;i<LS->order;i++){
+			newAlphabetString[i]=i;
+		}
+		for (int i = 1; i < LS->order; i++) {
+			int randLetter = rand() % i;
+		    tempLetter = newAlphabetString[i];
+		    newAlphabetString[i] = newAlphabetString[randLetter];
+		    newAlphabetString[randLetter] = tempLetter;
+		}
+
+	   for (int column = 0; column < LS->order; column++) {
+		    for (int row = 0; row < LS->order; row++) {
+		    	int value = LS->pointer[row][column];
+		    	LS->pointer[row][column]=newAlphabetString[value];
+		    }
+	   }
+	}
+   
 }
 
 void MakeLS(LatinSquare *LS) {
     if (LS->order == LS->orderBasic) {
         LS->Allocate();
         LS->MakeBasicLS();
-        Permutation(LS);
+        Permutation(LS,0);
         return;
     }
     //step 1
@@ -176,26 +217,25 @@ void MakeLS(LatinSquare *LS) {
     LS->FillHalfLS(&A, &B, 'u');
     //step 3
     //step 3.a
-    thread permutationA(Permutation, &A);
+    thread permutationA(Permutation, &A, 0);
     //step 3.b
-    thread permutationB(Permutation, &B);
+    thread permutationB(Permutation, &B, 1);
     permutationA.join();
     permutationB.join();
     //step 4
     //step 4.2
     LS->FillHalfLS(&B, &A, 'd');
     //step 5
-    Permutation(LS);
+    Permutation(LS,0);
 }
 
-int main() {
+int main(int argc, char **argv) { //first arg is power of 2, second is output filename
     srand(time(nullptr));
     int order, orderBasic;
-    cout << "Input square order, power of 2:" << endl;
-    cin >> order;
+    order=atoi(argv[1]); //argv[0] is name of program
     order = 1 << order;
     orderBasic = 8;
-    cout.flush();
+    //cout.flush();
     LatinSquare LS(order, orderBasic);
     unsigned int start_time =  clock();
     MakeLS(&LS);
@@ -203,7 +243,9 @@ int main() {
     unsigned int search_time = end_time - start_time;
     cout << "Time is: " << search_time << endl;
     //LS.Print();
-    //LS.PrintFile();
+    string filename;
+    filename=argv[2];
+    LS.PrintFile(filename);
     cout << "Done!" << endl;
     cout.flush();
     return 0;
