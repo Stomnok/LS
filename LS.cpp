@@ -130,7 +130,7 @@ void LatinSquare::FillHalfLS(LatinSquare *A, LatinSquare *B, char UorD) const {
     }
 }
 
-void Permutation(LatinSquare *LS,bool flag) { //вывернутый алгоритм тасования Фишера — Йетса
+void Permutation(LatinSquare *LS, bool flag) { //вывернутый алгоритм тасования Фишера — Йетса
     int randRow;
     int randColumn;
     int *tempRow;
@@ -151,53 +151,53 @@ void Permutation(LatinSquare *LS,bool flag) { //вывернутый алгор�
             LS->pointer[row][column] = tempElemFromColumn;
         }
     }
-    
-	int* newAlphabetString;
-	newAlphabetString = new int [LS->order];
-	int tempLetter;
-	if(flag){
-		for(int i=0;i<LS->order;i++){
-			newAlphabetString[i]=i+(LS->order);
-		}
-		for (int i = 1; i < LS->order; i++) {
-			int randLetter = rand() % i;
-		    tempLetter = newAlphabetString[i];
-		    newAlphabetString[i] = newAlphabetString[randLetter];
-		    newAlphabetString[randLetter] = tempLetter;
-		}
 
-	   for (int column = 0; column < LS->order; column++) {
-		    for (int row = 0; row < LS->order; row++) {
-		    	int value = LS->pointer[row][column]-LS->order;
-		    	LS->pointer[row][column]=newAlphabetString[value];
-		    }
-	   }
-   }else{
-		for(int i=0;i<LS->order;i++){
-			newAlphabetString[i]=i;
-		}
-		for (int i = 1; i < LS->order; i++) {
-			int randLetter = rand() % i;
-		    tempLetter = newAlphabetString[i];
-		    newAlphabetString[i] = newAlphabetString[randLetter];
-		    newAlphabetString[randLetter] = tempLetter;
-		}
+    int *newAlphabetString;
+    newAlphabetString = new int[LS->order];
+    int tempLetter;
+    if (flag) {
+        for (int i = 0; i < LS->order; i++) {
+            newAlphabetString[i] = i + (LS->order);
+        }
+        for (int i = 1; i < LS->order; i++) {
+            int randLetter = rand() % i;
+            tempLetter = newAlphabetString[i];
+            newAlphabetString[i] = newAlphabetString[randLetter];
+            newAlphabetString[randLetter] = tempLetter;
+        }
 
-	   for (int column = 0; column < LS->order; column++) {
-		    for (int row = 0; row < LS->order; row++) {
-		    	int value = LS->pointer[row][column];
-		    	LS->pointer[row][column]=newAlphabetString[value];
-		    }
-	   }
-	}
-   
+        for (int column = 0; column < LS->order; column++) {
+            for (int row = 0; row < LS->order; row++) {
+                int value = LS->pointer[row][column] - LS->order;
+                LS->pointer[row][column] = newAlphabetString[value];
+            }
+        }
+    } else {
+        for (int i = 0; i < LS->order; i++) {
+            newAlphabetString[i] = i;
+        }
+        for (int i = 1; i < LS->order; i++) {
+            int randLetter = rand() % i;
+            tempLetter = newAlphabetString[i];
+            newAlphabetString[i] = newAlphabetString[randLetter];
+            newAlphabetString[randLetter] = tempLetter;
+        }
+
+        for (int column = 0; column < LS->order; column++) {
+            for (int row = 0; row < LS->order; row++) {
+                int value = LS->pointer[row][column];
+                LS->pointer[row][column] = newAlphabetString[value];
+            }
+        }
+    }
+
 }
 
 void MakeLS(LatinSquare *LS) {
     if (LS->order == LS->orderBasic) {
         LS->Allocate();
         LS->MakeBasicLS();
-        Permutation(LS,0);
+        Permutation(LS, 0);
         return;
     }
     //step 1
@@ -226,25 +226,28 @@ void MakeLS(LatinSquare *LS) {
     //step 4.2
     LS->FillHalfLS(&B, &A, 'd');
     //step 5
-    Permutation(LS,0);
+    Permutation(LS, 0);
 }
 
 int main(int argc, char **argv) { //first arg is power of 2, second is output filename
     srand(time(nullptr));
     int order, orderBasic;
-    order=atoi(argv[1]); //argv[0] is name of program
+    order = atoi(argv[1]); //argv[0] is name of program
     order = 1 << order;
     orderBasic = 8;
+    if (order < orderBasic) {
+        return 0;
+    }
     //cout.flush();
     LatinSquare LS(order, orderBasic);
-    unsigned int start_time =  clock();
+    unsigned int start_time = clock();
     MakeLS(&LS);
     unsigned int end_time = clock();
     unsigned int search_time = end_time - start_time;
     cout << "Time is: " << search_time << endl;
     //LS.Print();
     string filename;
-    filename=argv[2];
+    filename = argv[2];
     LS.PrintFile(filename);
     cout << "Done!" << endl;
     cout.flush();
