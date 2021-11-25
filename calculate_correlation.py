@@ -2,8 +2,10 @@ import numpy as np
 import scipy.stats
 import statistics
 
-n = 256
-
+n = 32
+medians=[]
+mins=[]
+maxs=[]
 for symbol in range(n):
     all_datasets = []
     spearmanr_list = []
@@ -24,3 +26,11 @@ for symbol in range(n):
 
     print('median value of Spearman correlation for ' + str(symbol) + ': ' + '{0:.10f}'.format(
         statistics.median(spearmanr_list)))
+    medians.append(statistics.median(spearmanr_list))
+    mins.append(min(spearmanr_list))
+    maxs.append(max(spearmanr_list))
+    
+print('Result median of medians: {0:.10f}'.format(statistics.median(medians)))
+print('Result median of mins: {0:.10f}'.format(statistics.median(mins)))
+print('Result median of maxs: {0:.10f}'.format(statistics.median(maxs)))
+        
